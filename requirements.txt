@@ -1,0 +1,8 @@
+feedparser
+PyYAML
+sqlobject
+argparse
+requests
+clint
+slugify
+mutagen

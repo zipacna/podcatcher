@@ -1,0 +1,16 @@
+---
+# configure podcasts. 
+
+podcasts:
+  - id: examplepodcast # unique identifier for the podcast
+    active: True # is the podcast active (will the feed be parsed and podcasts downloaded?)
+    url: "http://www.mysupercoolpodcast/feed/feed.xml"
+    maxage: 0 # what is the max age of a podcast to be downloaded (0 = no restriction)
+    album: My Super Sweet Podcast # the album id3 tag can be overwritten with this value
+    artist: Tim Test # the artist id3 tag can be overwritten with this value
+    albumartist: Tim Test # the album artist id3 tag can be overwritten with this value
+    overwrite_id3_album: True # overwrite the album id3 tag with the yaml config
+    overwrite_id3_artist: True # overwrite the artist id3 tag  with the yaml config
+    overwrite_id3_albumartist: True # overwrite the albumartist id3 tag  with the yaml config
+    overwrite_id3_date: True # overwrite the date id3 tag  with the published date from the rss feed
+    overwrite_id3_title: True # overwrite the title id3 tag  with the title from the rss feed
