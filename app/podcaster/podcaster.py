@@ -223,10 +223,15 @@ class Podcaster(object):
         try:
             self.logger.debug("create podcast directory: '" + self.podcast_dir + "'")
             os.makedirs(self.podcast_dir)
+        except OSError:
+            if not os.path.isdir(self.podcast_dir):
+                raise
+
+        try:
             self.logger.debug("create temp directory: '" + self.temp_dir + "'")
             os.makedirs(self.temp_dir)
         except OSError:
-            if not os.path.isdir(self.podcast_dir) and not os.path.isdir(self.temp_dir):
+            if not os.path.isdir(self.temp_dir):
                 raise
 
         # initalize the database
