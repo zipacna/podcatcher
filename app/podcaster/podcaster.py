@@ -29,6 +29,7 @@ from slugify import slugify
 import mutagen
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3NoHeaderError
+from mutagen.mp3 import HeaderNotFoundError
 
 from sqlobject import SQLObject, sqlite, DateTimeCol, UnicodeCol
 import feedparser
@@ -173,6 +174,8 @@ class Podcast(object):
         except ID3NoHeaderError:
             audio = mutagen.File(self.temp_file, easy=True)
             audio.add_tags()
+        except HeaderNotFoundError:
+            raise
 
         audio[tag] = unicode(value)
         audio.save() 
@@ -392,37 +395,40 @@ def main():
         # loop trough all podcasts
         logger.info("loop trough " + str(len(feed['entries'])) + " podcast entries")
         for p in feed['entries']:
-            logger.info("Working on podcast: '" + p.title + "'")
-            # download the podcast
-            logger.info("Downloading podcast file")
-            p.download_file(config.TEMP_DIR)
-            # check if the file was successfully downloaded
-            if p.file_size > 0:
-                # load the mp3tags of the downloaded file
-                logger.info("Load mp3 tags from file")
-                p.load_mp3tags()
-                # if the feed is set to overwrite the tags
-                # we will do this now before renaming and moving the file
-                logger.info("Overwrite mp3 tags if necessary")
-                if feed['overwrite_id3_album']:
-                    p.overwrite_mp3tag('album', feed['album']) 
-                if feed['overwrite_id3_artist']:
-                    p.overwrite_mp3tag('artist', feed['artist']) 
-                if feed['overwrite_id3_albumartist']:
-                    p.overwrite_mp3tag('albumartist', feed['albumartist']) 
-                if feed['overwrite_id3_date']:
-                    p.overwrite_mp3tag('date', time.strftime('%Y-%m-%d', p.published_parsed)) 
-                if feed['overwrite_id3_title']:
-                    p.overwrite_mp3tag('title', p.title) 
+            try:
+                logger.info("Working on podcast: '" + p.title + "'")
+                # download the podcast
+                logger.info("Downloading podcast file")
+                p.download_file(config.TEMP_DIR)
+                # check if the file was successfully downloaded
+                if p.file_size > 0:
+                    # load the mp3tags of the downloaded file
+                    logger.info("Load mp3 tags from file")
+                    p.load_mp3tags()
+                    # if the feed is set to overwrite the tags
+                    # we will do this now before renaming and moving the file
+                    logger.info("Overwrite mp3 tags if necessary")
+                    if feed['overwrite_id3_album']:
+                        p.overwrite_mp3tag('album', feed['album']) 
+                    if feed['overwrite_id3_artist']:
+                        p.overwrite_mp3tag('artist', feed['artist']) 
+                    if feed['overwrite_id3_albumartist']:
+                        p.overwrite_mp3tag('albumartist', feed['albumartist']) 
+                    if feed['overwrite_id3_date']:
+                        p.overwrite_mp3tag('date', time.strftime('%Y-%m-%d', p.published_parsed)) 
+                    if feed['overwrite_id3_title']:
+                        p.overwrite_mp3tag('title', p.title) 
 
-                # now rename and move the file
-                logger.info("Move and rename podcast file")
-                p.move_file(podcaster.podcast_dir, feed['id'])
-                # add an entry to our database to mark it as read
-                logger.info("Mark podcast as seen")
-                podcaster.SeenEntry(hashed=p.hash, pub_date=datetime.fromtimestamp(time.mktime(p.published_parsed)), feed_id=feed['id'], podcast_title=p.title)
-            else:
-                logger.error("Could not download podcast file '"+ p.file_link +"'")
+                    # now rename and move the file
+                    logger.info("Move and rename podcast file")
+                    p.move_file(podcaster.podcast_dir, feed['id'])
+                    # add an entry to our database to mark it as read
+                    logger.info("Mark podcast as seen")
+                    podcaster.SeenEntry(hashed=p.hash, pub_date=datetime.fromtimestamp(time.mktime(p.published_parsed)), feed_id=feed['id'], podcast_title=p.title)
+                else:
+                    logger.error("Could not download podcast file '"+ p.file_link +"'")
+            except:
+                logger.error("Unable to properly modify podcast. Aborting this one.")
 
 #####
 # main
