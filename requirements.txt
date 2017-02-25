@@ -6,3 +6,4 @@ requests
 clint
 slugify
 mutagen
+schedule
