@@ -215,7 +215,8 @@ class Podcaster(object):
         """
         self.database = database
         self.podcast_dir = podcast_dir
-        self.podcast_list = podcast_list
+        self.podcast_source = podcast_list
+        self.podcast_list = None
         self.temp_dir = temp_dir
 
         self.feeds = []
@@ -252,20 +253,19 @@ class Podcaster(object):
             check if the podcast settings file is a local file
             or needs to be downloaded from an url
         """
-        parsed_file = urlparse(self.podcast_list)
-        print(parsed_file)
-
+        parsed_file = urlparse(self.podcast_source)
         if parsed_file.scheme in ['http', 'https']:
             try:
                 download_file = os.path.join(self.temp_dir, os.path.basename(parsed_file.path))
-                self.logger.debug('download podcast settings file {} to {}'.format(self.podcast_list, download_file))
-                response = requests.get(self.podcast_list)
+                self.logger.debug('download podcast settings file {} to {}'.format(self.podcast_source, download_file))
+                response = requests.get(self.podcast_source)
                 with open(download_file, 'wb') as f:
                     f.write(response.content)
                 self.podcast_list = download_file
             except:
                 raise
-
+        else:
+            self.podcast_list = self.podcast_source
         # check if the file exists
         if not os.path.exists(self.podcast_list):
             raise Exception("podcast settings file '{}' does not exist".format(self.podcast_list))
