@@ -4,6 +4,6 @@ sqlobject
 argparse
 requests
 clint
-slugify
+unicode-slugify
 mutagen
 schedule

@@ -23,6 +23,9 @@ class AppConfig(object):
     TEMP_DIR = os.getenv('PODCASTER_TEMP', os.path.join(tempfile.gettempdir(), "podcasts"))
     # need to disable ssl verification to download some of my feeds
     DISABLE_SSL_VERIFY = True
+    # schedule for downloading (minutes)
+    SCHEDULE = os.getenv('PODCASTER_SCHEDULE', "0")
+    SCHEDULE = int(SCHEDULE)
 
 class DevelopmentConfig(AppConfig):
     """
