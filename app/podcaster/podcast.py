@@ -189,16 +189,12 @@ class Podcast(object):
 
             <Published Year>_<Published Month>_<Published Day>_<feed id>_<track number>_<podcast title>.<file ending>
         """
-        print('bluuub')
         if self.mp3tags['tracknumber']:
             filename = time.strftime('%Y_%m_%d', self.published_parsed) + "_" + feed_id + "_" + self.mp3tags['tracknumber'] + "_" + self.title
         else:
             filename = time.strftime('%Y_%m_%d', self.published_parsed) + "_" + feed_id + "_" + self.title
 
-        print('filename prior slug: {}'.format(filename))
         filename = slugify(filename) + "." + self.file_ending
-        print('filename after slug: {}'.format(filename))
-
 
         self.logger.debug("move and rename file '" + self.temp_file + "' to '" + os.path.join(podcast_dir, feed_id, filename) + "'")
         shutil.move(self.temp_file, os.path.join(podcast_dir, feed_id, filename))
